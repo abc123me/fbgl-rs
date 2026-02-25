@@ -54,7 +54,7 @@ impl<'a, C: FixedFramebufferColor> DirectFramebufferRenderer<'a, C> {
     }
 
     unsafe fn raw_diddy_framebuffer(&self, x: u16, y: u16) -> *const u8 {
-        let a = ((y * self.get_width() + x) as usize) * size_of::<C>();
+		let a = ((y as usize) * (self.get_width() as usize) + (x as usize)) * size_of::<C>();
         let b = a + size_of::<C>();
         self.fb.frame[a..b].as_ptr()
     }

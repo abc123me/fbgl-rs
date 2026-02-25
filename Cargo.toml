@@ -9,6 +9,7 @@ fontdue = { version = "0.9.3", optional = true }
 image = { version = "0.25.9", optional = true }
 
 [features]
+default = [ "fbdev", "text", "img" ]
 fbdev = [ "framebuffer" ]
 text = [ "fontdue" ]
 img = [ "image" ]

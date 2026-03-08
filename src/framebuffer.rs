@@ -36,6 +36,15 @@ impl ReprColor for Color565 {
         ]
     }
 }
+
+// Trait for directly accessing framebuffer memory
+
+trait DiddyFbMemory {
+    unsafe fn raw_diddy_framebuffer(&self, x: u32, y: u32) -> *const u8;
+}
+
+// Direct framebuffer renderer
+
 pub struct DirectFramebufferRenderer<'a, C: FixedFramebufferColor> {
     pub fb: &'a mut Framebuffer,
     _non_generic: C,
@@ -52,9 +61,11 @@ impl<'a, C: FixedFramebufferColor> DirectFramebufferRenderer<'a, C> {
             fb: fb,
         })
     }
+}
 
-    unsafe fn raw_diddy_framebuffer(&self, x: u16, y: u16) -> *const u8 {
-		let a = ((y as usize) * (self.get_width() as usize) + (x as usize)) * size_of::<C>();
+impl<'a, C: FixedFramebufferColor> DiddyFbMemory for DirectFramebufferRenderer<'a, C> {
+    unsafe fn raw_diddy_framebuffer(&self, x: u32, y: u32) -> *const u8 {
+        let a = ((y as usize) * (self.get_width() as usize) + (x as usize)) * size_of::<C>();
         let b = a + size_of::<C>();
         self.fb.frame[a..b].as_ptr()
     }
@@ -63,14 +74,14 @@ impl<'a, C: FixedFramebufferColor> DirectFramebufferRenderer<'a, C> {
 impl<'a, C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<'a, C> {
     type Color = C;
 
-    fn get_width(&self) -> u16 {
-        self.fb.var_screen_info.xres as u16
+    fn get_width(&self) -> u32 {
+        self.fb.var_screen_info.xres
     }
-    fn get_height(&self) -> u16 {
-        self.fb.var_screen_info.yres as u16
+    fn get_height(&self) -> u32 {
+        self.fb.var_screen_info.yres
     }
 
-    fn get_pixel(&self, x: u16, y: u16) -> C {
+    fn get_pixel(&self, x: u32, y: u32) -> C {
         let mut col: C = C::new(0, 0, 0);
         // SAFETY - raw_diddy_framebuffer doesn't diddy too much
         unsafe {
@@ -82,7 +93,8 @@ impl<'a, C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRendere
         }
         col
     }
-    fn set_pixel(&mut self, col: C, x: u16, y: u16) {
+
+    fn set_pixel(&mut self, col: C, x: u32, y: u32) {
         // SAFETY - raw_diddy_framebuffer doesn't diddy too much
         unsafe {
             core::ptr::copy_nonoverlapping(

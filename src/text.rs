@@ -15,5 +15,14 @@ pub trait TextOperations: GraphicsRenderer {
 }
 
 impl<T: GraphicsRenderer> TextOperations for T {
-	fn text(&mut self, col: Self::Color, x: u32, y: u32, txt: String, opts: TextRenderSettings) {}
+	fn text(
+		&mut self,
+		_col: Self::Color,
+		_x: u32,
+		_y: u32,
+		_txt: String,
+		_opts: TextRenderSettings,
+	) {
+		// TODO
+	}
 }

@@ -1,5 +1,5 @@
 #[cfg(feature = "fbdev")]
-pub mod framebuffer;
+pub mod fb;
 
 #[cfg(feature = "text")]
 pub mod text;
@@ -7,8 +7,8 @@ pub mod text;
 #[cfg(feature = "img")]
 pub mod image;
 
-//#[cfg(feature = "sdl")]
-//pub mod sdl;
+#[cfg(feature = "sdl")]
+pub mod sdl;
 
 #[derive(Clone, Copy)]
 pub struct RGBA {
@@ -123,7 +123,7 @@ impl<T: GraphicsRenderer> GraphicsOperations for T {
 	fn ellipse(&mut self, col: Self::Color, x: u32, y: u32, w: u32, h: u32) {
 		let wh = w / 2;
 		let hh = h / 2;
-		let dw2 = wh * wh;
+		let _dw2 = wh * wh;
 		let dh2 = hh * hh;
 		for xp in 0..wh {
 			let xp2 = xp * xp;
@@ -137,7 +137,7 @@ impl<T: GraphicsRenderer> GraphicsOperations for T {
 			}
 		}
 	}
-	fn ellipse_outline(&mut self, col: Self::Color, x: u32, y: u32, w: u32, h: u32) {
+	fn ellipse_outline(&mut self, _col: Self::Color, _x: u32, _y: u32, _w: u32, _h: u32) {
 		//todo
 	}
 	fn line(&mut self, col: Self::Color, x1: u32, y1: u32, x2: u32, y2: u32) {
@@ -189,7 +189,7 @@ pub struct BufferedRenderer<T: GraphicsRenderer> {
 }
 
 impl<T: GraphicsRenderer> BufferedRenderer<T> {
-	pub fn new(mut base_renderer: T) -> Self {
+	pub fn new(base_renderer: T) -> Self {
 		let mut out = BufferedRenderer::<T> {
 			base: base_renderer,
 			buffer_width: 0,
@@ -204,7 +204,7 @@ impl<T: GraphicsRenderer> BufferedRenderer<T> {
 		self.buffer_width = self.base.get_width();
 		self.buffer_height = self.base.get_height();
 		self.buffer = Vec::<T::Color>::with_capacity(self.base.get_num_pixels() as usize);
-		for i in 0..self.base.get_num_pixels() {
+		for _i in 0..self.base.get_num_pixels() {
 			self.buffer.push(T::Color::new(0, 0, 0));
 		}
 		println!(
@@ -249,10 +249,10 @@ pub struct MultiDisplayHorizontalRenderer<T: GraphicsRenderer, const N: usize> {
 }
 
 impl<T: GraphicsRenderer, const N: usize> MultiDisplayHorizontalRenderer<T, N> {
-	pub fn new(mut renderers: [T; N]) -> Self {
+	pub fn new(renderers: [T; N]) -> Self {
 		let base_w = renderers[0].get_width();
 		let base_h = renderers[0].get_height();
-		let mut out = MultiDisplayHorizontalRenderer::<T, N> {
+		let out = MultiDisplayHorizontalRenderer::<T, N> {
 			renderers,
 			base_w,
 			base_h,

@@ -1,5 +1,3 @@
-extern crate framebuffer;
-
 use framebuffer::Framebuffer;
 
 use crate::*;
@@ -82,7 +80,7 @@ impl<'a, C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRendere
 	}
 
 	fn get_pixel(&self, x: u32, y: u32) -> C {
-		let mut col: C = C::new(0, 0, 0);
+		let col: C = C::new(0, 0, 0);
 		// SAFETY - raw_diddy_framebuffer doesn't diddy too much
 		unsafe {
 			core::ptr::copy_nonoverlapping(

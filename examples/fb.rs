@@ -54,10 +54,10 @@ fn main() {
 		println!("Failed to set graphics mode on framebuffer!");
 	}
 
-	let mut fb0 = Framebuffer::new("/dev/fb0").unwrap();
+	let fb0 = Framebuffer::new("/dev/fb0").unwrap();
 	print_fb_info(&fb0);
 
-	let mut gl = DirectFramebufferRenderer::<Color565>::new(&mut fb0).unwrap();
+	let mut gl = DirectFramebufferRenderer::<Color565>::new(fb0).unwrap();
 
 	println!(
 		"Framebuffer fb0 initialized as {}x{}!",

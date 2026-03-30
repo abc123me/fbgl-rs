@@ -43,13 +43,13 @@ trait DiddyFbMemory {
 
 // Direct framebuffer renderer
 
-pub struct DirectFramebufferRenderer<'a, C: FixedFramebufferColor> {
-	pub fb: &'a mut Framebuffer,
+pub struct DirectFramebufferRenderer<C: FixedFramebufferColor> {
+	fb: Framebuffer,
 	_non_generic: C,
 }
 
-impl<'a, C: FixedFramebufferColor> DirectFramebufferRenderer<'a, C> {
-	pub fn new(fb: &'a mut Framebuffer) -> Result<Self, String> {
+impl<'a, C: FixedFramebufferColor> DirectFramebufferRenderer<C> {
+	pub fn new(fb: Framebuffer) -> Result<Self, String> {
 		if fb.var_screen_info.bits_per_pixel != C::BITS_T {
 			return Err("Bits per pixel must be same as color bits per pixel".to_string());
 		}
@@ -61,7 +61,7 @@ impl<'a, C: FixedFramebufferColor> DirectFramebufferRenderer<'a, C> {
 	}
 }
 
-impl<'a, C: FixedFramebufferColor> DiddyFbMemory for DirectFramebufferRenderer<'a, C> {
+impl<'a, C: FixedFramebufferColor> DiddyFbMemory for DirectFramebufferRenderer<C> {
 	unsafe fn raw_diddy_framebuffer(&self, x: u32, y: u32) -> *const u8 {
 		let a = ((y as usize) * (self.get_width() as usize) + (x as usize)) * size_of::<C>();
 		let b = a + size_of::<C>();
@@ -69,7 +69,7 @@ impl<'a, C: FixedFramebufferColor> DiddyFbMemory for DirectFramebufferRenderer<'
 	}
 }
 
-impl<'a, C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<'a, C> {
+impl<'a, C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<C> {
 	type Color = C;
 
 	fn get_width(&self) -> u32 {

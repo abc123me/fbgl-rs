@@ -1,3 +1,6 @@
+#[cfg(feature = "axidma")]
+pub mod axidma;
+
 #[cfg(feature = "fbdev")]
 pub mod fb;
 
@@ -10,36 +13,9 @@ pub mod image;
 #[cfg(feature = "sdl")]
 pub mod sdl;
 
-#[derive(Clone, Copy, PartialEq)]
-pub struct RGBA {
-	pub r: u8,
-	pub g: u8,
-	pub b: u8,
-	pub a: u8,
-}
+pub mod colors;
 
-pub trait ReprColor: Sized + Copy + PartialEq {
-	fn from_rgb(r: u8, g: u8, b: u8) -> Self;
-	fn to_rgb(&self) -> [u8; 3];
-
-	fn new(r: u8, g: u8, b: u8) -> Self {
-		Self::from_rgb(r, g, b)
-	}
-}
-
-impl ReprColor for RGBA {
-	fn from_rgb(_r: u8, _g: u8, _b: u8) -> Self {
-		RGBA {
-			r: _r,
-			g: _g,
-			b: _b,
-			a: 255,
-		}
-	}
-	fn to_rgb(&self) -> [u8; 3] {
-		[self.r, self.g, self.b]
-	}
-}
+use crate::colors::ReprColor;
 
 pub trait GraphicsOperations: GraphicsRenderer {
 	/* For branch prediction reasons, all of these are assumed to
@@ -74,9 +50,6 @@ pub trait GraphicsOperations: GraphicsRenderer {
 	fn ellipse(&mut self, col: Self::Color, x: u32, y: u32, w: u32, h: u32) {
 		let hh = h * h;
 		let ww = w * w;
-		let hhww = hh * ww;
-		let mut x0 = w;
-		let mut dx = 0;
 		let (mut x0, mut dx, hhww) = (w, 0, hh * ww);
 
 		for yp in 0..h {
@@ -100,7 +73,7 @@ pub trait GraphicsOperations: GraphicsRenderer {
 			}
 		}
 	}
-	fn ellipse_outline(&mut self, col: Self::Color, x: u32, y: u32, w: u32, h: u32) {
+	fn ellipse_outline(&mut self, _col: Self::Color, _x: u32, _y: u32, _w: u32, _h: u32) {
 		//todo
 	}
 	fn line(&mut self, col: Self::Color, x1: u32, y1: u32, x2: u32, y2: u32) {
@@ -151,7 +124,6 @@ pub trait GraphicsRenderer {
 	fn set_pixel(&mut self, col: Self::Color, x: u32, y: u32);
 	fn set_pixels(&mut self, pixels: &Vec<Self::Color>, x1: u32, y1: u32, x2: u32, y2: u32) {
 		let w = self.get_width();
-		let h = self.get_height();
 		assert!(
 			pixels.len() == self.get_num_pixels() as usize,
 			"Given incorrect amount of pixels, given {}, got {}!",
@@ -322,8 +294,6 @@ impl<T: GraphicsRenderer, const N: usize> GraphicsRenderer
 	}
 
 	fn set_pixels(&mut self, pixels: &Vec<Self::Color>, x1: u32, y1: u32, x2: u32, y2: u32) {
-		let w = self.get_width();
-		let h = self.get_height();
 		assert!(
 			pixels.len() == self.get_num_pixels() as usize,
 			"Given incorrect amount of pixels, given {}, got {}!",
@@ -348,4 +318,9 @@ impl<T: GraphicsRenderer + GraphicsOperations, const N: usize> GraphicsOperation
 			rend.clear(col);
 		}
 	}
+}
+
+// Trait for directly accessing framebuffer memory
+pub(crate) trait DiddyFbMemory {
+	unsafe fn raw_diddy_framebuffer(&self, x: u32, y: u32) -> *const u8;
 }

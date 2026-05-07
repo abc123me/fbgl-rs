@@ -1,8 +1,7 @@
 use framebuffer::Framebuffer;
 
+use crate::colors::{Color565, ReprColor};
 use crate::*;
-
-pub type Color565 = u16;
 
 pub trait FixedFramebufferColor: ReprColor + Sized {
 	/// Brief: Total bits
@@ -19,26 +18,6 @@ impl FixedFramebufferColor for Color565 {
 	const BITS_R: u32 = 5;
 	const BITS_G: u32 = 6;
 	const BITS_B: u32 = 5;
-}
-impl ReprColor for Color565 {
-	fn from_rgb(r: u8, g: u8, b: u8) -> Color565 {
-		(((b as u16) >> 3) & 0b011111)
-			+ ((((g as u16) >> 2) & 0b111111) << 5)
-			+ ((((r as u16) >> 3) & 0b011111) << 11)
-	}
-	fn to_rgb(&self) -> [u8; 3] {
-		[
-			((self & 0b1111_1000_0000_0000) >> 8) as u8, // Red
-			((self & 0b0000_0111_1110_0000) >> 3) as u8, // Green
-			((self & 0b0000_0000_0001_1111) << 3) as u8, // Blue
-		]
-	}
-}
-
-// Trait for directly accessing framebuffer memory
-
-trait DiddyFbMemory {
-	unsafe fn raw_diddy_framebuffer(&self, x: u32, y: u32) -> *const u8;
 }
 
 // Direct framebuffer renderer
@@ -107,7 +86,7 @@ impl<C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<C>
 impl GraphicsOperations for DirectFramebufferRenderer<Color565> {
 	fn clear(&mut self, col: Color565) {
 		let len = self.fb.frame.len();
-		let mut slc: &mut [u16] = bytemuck::cast_slice_mut(&mut self.fb.frame[0..len]);
+		let slc: &mut [u16] = bytemuck::cast_slice_mut(&mut self.fb.frame[0..len]);
 		slc.fill(col as u16);
 	}
 }
@@ -122,10 +101,10 @@ mod tests {
 			let val: Color565 = i;
 			let rgb = val.to_rgb();
 			assert_eq!(
-                val,
-                Color565::from_rgb(rgb[0], rgb[1], rgb[2]),
-                "Check color after map from_rgb(to_rgb()) is the same, originally {:#04X} now {:#04X} ({:#02X}, {:#02X}, {:#02X})",
-                val, Color565::from_rgb(rgb[0], rgb[1], rgb[2]), rgb[0], rgb[1], rgb[2]
+				val,
+				Color565::from_rgb(rgb[0], rgb[1], rgb[2]),
+				"Check color after map from_rgb(to_rgb()) is the same, originally {:#04X} now {:#04X} ({:#02X}, {:#02X}, {:#02X})",
+				val, Color565::from_rgb(rgb[0], rgb[1], rgb[2]), rgb[0], rgb[1], rgb[2]
             );
 		}
 	}

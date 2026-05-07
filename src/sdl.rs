@@ -2,6 +2,8 @@ use crate::*;
 
 use anyhow::{anyhow, Error};
 
+use crate::colors::ReprColor;
+
 use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
 use sdl2::{Sdl, VideoSubsystem};

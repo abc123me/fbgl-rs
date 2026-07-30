@@ -1,6 +1,3 @@
-#[cfg(feature = "axidma")]
-pub mod axidma;
-
 #[cfg(feature = "fbdev")]
 pub mod fb;
 

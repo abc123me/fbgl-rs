@@ -1,4 +1,6 @@
-use crate::renderers::{GraphicsOperations, GraphicsRenderer};
+use crate::colors::ReprColor;
+
+use crate::renderers::{BufferedRenderer, GraphicsOperations, GraphicsRenderer};
 
 #[cfg(feature = "img")]
 pub mod image;

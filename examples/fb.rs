@@ -12,7 +12,9 @@ use fbgl::image::ImageOperations;
 use framebuffer::{Framebuffer, KdMode};
 
 use fbgl::colors::{Color565, ReprColor};
-use fbgl::renderers::{fb::DirectFramebufferRenderer, GraphicsOperations, GraphicsRenderer};
+use fbgl::renderers::fb::DirectFramebufferRenderer;
+use fbgl::renderers::heap::HeapBuffer;
+use fbgl::renderers::{BufferedRenderer, GraphicsOperations, GraphicsRenderer};
 
 fn print_fb_info(fb: &Framebuffer) {
 	let sinf = &fb.var_screen_info;
@@ -57,7 +59,7 @@ fn main() {
 	let fb0 = Framebuffer::new("/dev/fb0").unwrap();
 	print_fb_info(&fb0);
 
-	let mut gl = DirectFramebufferRenderer::<Color565>::new(fb0).unwrap();
+	let mut gl = HeapBuffer::new(DirectFramebufferRenderer::<Color565>::new(fb0).unwrap());
 
 	println!(
 		"Framebuffer fb0 initialized as {}x{}!",
@@ -82,6 +84,7 @@ fn main() {
 	gl.rect_outline(Color565::new(255, 255, 255), w2 - s2, h2 - s2, s, s);
 	gl.ellipse(Color565::new(255, 255, 0), w2, h2, s, s / 2);
 	gl.ellipse_outline(Color565::new(255, 0, 0), w2, h2, s, s / 2);
+	gl.push_buffer();
 
 	#[cfg(feature = "img")]
 	{
@@ -93,18 +96,22 @@ fn main() {
 			.to_rgba8();
 		gl.clear(Color565::new(0, 0, 0));
 		gl.draw_image_rgba(0, 0, &img);
+		gl.push_buffer();
 
 		std::thread::sleep(std::time::Duration::from_millis(100));
 		gl.clear(Color565::new(255, 0, 0));
 		gl.draw_image_rgba(0, 0, &img);
+		gl.push_buffer();
 
 		std::thread::sleep(std::time::Duration::from_millis(100));
 		gl.clear(Color565::new(0, 255, 0));
 		gl.draw_image_rgba(0, 0, &img);
+		gl.push_buffer();
 
 		std::thread::sleep(std::time::Duration::from_millis(100));
 		gl.clear(Color565::new(0, 0, 255));
 		gl.draw_image_rgba(0, 0, &img);
+		gl.push_buffer();
 	}
 
 	if gfx_mode.is_ok() {

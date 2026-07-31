@@ -4,6 +4,8 @@ pub mod fb;
 #[cfg(feature = "sdl")]
 pub mod sdl;
 
+pub mod heap;
+
 use crate::colors::ReprColor;
 
 /// Trait describing a generic graphics renderer

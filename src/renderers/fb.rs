@@ -81,6 +81,9 @@ impl<C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<C>
 			);
 		}
 	}
+
+	// TODO - Optimize this to just memcpy the pixels directly onto the device
+	//fn set_pixels(&mut self, pixels: &Vec<C>, x1: u32, y1: u32, x2: u32, y2: u32)
 }
 
 impl GraphicsOperations for DirectFramebufferRenderer<Color565> {
@@ -91,6 +94,7 @@ impl GraphicsOperations for DirectFramebufferRenderer<Color565> {
 	}
 }
 
+// TODO - Optimize this to just memcpy the image directly onto the device
 #[cfg(feature = "img")]
 impl crate::image::ImageOperations for DirectFramebufferRenderer<Color565> {}
 

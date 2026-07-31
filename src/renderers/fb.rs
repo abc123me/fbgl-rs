@@ -1,7 +1,7 @@
 use framebuffer::Framebuffer;
 
 use crate::colors::{Color565, ReprColor};
-use crate::*;
+use crate::renderers::{DiddyFbMemory, GraphicsOperations, GraphicsRenderer};
 
 pub trait FixedFramebufferColor: ReprColor + Sized {
 	/// Brief: Total bits
@@ -90,6 +90,9 @@ impl GraphicsOperations for DirectFramebufferRenderer<Color565> {
 		slc.fill(col as u16);
 	}
 }
+
+#[cfg(feature = "img")]
+impl crate::image::ImageOperations for DirectFramebufferRenderer<Color565> {}
 
 #[cfg(test)]
 mod tests {

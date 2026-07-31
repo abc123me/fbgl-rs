@@ -1,6 +1,6 @@
 extern crate fontdue;
 
-use crate::*;
+use crate::colors::ReprColor;
 
 use fontdue::Font;
 

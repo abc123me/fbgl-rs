@@ -1,12 +1,16 @@
-use crate::*;
-
 use anyhow::{anyhow, Error};
 
 use crate::colors::ReprColor;
+use crate::renderers::{BufferedRenderer, GraphicsOperations, GraphicsRenderer};
 
+use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::rect::{Point, Rect};
-use sdl2::render::WindowCanvas;
+use sdl2::render::{TextureCreator, WindowCanvas};
+use sdl2::video::WindowContext;
 use sdl2::{Sdl, VideoSubsystem};
+
+#[cfg(feature = "img")]
+pub mod image;
 
 pub type SdlColor = sdl2::pixels::Color;
 
@@ -23,6 +27,7 @@ pub struct SdlRenderer {
 	pub context: Sdl,
 	pub video: VideoSubsystem,
 	pub canvas: WindowCanvas,
+	pub texture_creator: TextureCreator<WindowContext>,
 }
 
 impl SdlRenderer {
@@ -38,10 +43,12 @@ impl SdlRenderer {
 			.opengl()
 			.build()?;
 		let canvas = window.into_canvas().build()?;
+		let texture_creator = canvas.texture_creator();
 		Ok(Self {
 			context,
 			video,
 			canvas,
+			texture_creator,
 		})
 	}
 }
@@ -62,8 +69,15 @@ impl GraphicsRenderer for SdlRenderer {
 		self.canvas.output_size().expect("an output size").1
 	}
 
-	fn get_pixel(&self, _x: u32, _y: u32) -> SdlColor {
-		SdlColor::RGB(0, 0, 0)
+	fn get_pixel(&self, x: u32, y: u32) -> SdlColor {
+		let pixels = self
+			.canvas
+			.read_pixels(
+				Some(Rect::new(x as i32, y as i32, 1, 1)),
+				PixelFormatEnum::RGBA32,
+			)
+			.expect("read_pixels to work");
+		Color::RGBA(pixels[0], pixels[1], pixels[2], pixels[3])
 	}
 	fn set_pixel(&mut self, col: SdlColor, x: u32, y: u32) {
 		assert!(x < i32::MAX as u32 && y < i32::MAX as u32);

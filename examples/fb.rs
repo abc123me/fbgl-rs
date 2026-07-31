@@ -1,6 +1,3 @@
-use fbgl::fb::*;
-use fbgl::*;
-
 extern crate framebuffer;
 extern crate image;
 
@@ -13,6 +10,9 @@ use image::ImageReader;
 use fbgl::image::ImageOperations;
 
 use framebuffer::{Framebuffer, KdMode};
+
+use fbgl::colors::{Color565, ReprColor};
+use fbgl::renderers::{fb::DirectFramebufferRenderer, GraphicsOperations, GraphicsRenderer};
 
 fn print_fb_info(fb: &Framebuffer) {
 	let sinf = &fb.var_screen_info;

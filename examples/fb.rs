@@ -85,7 +85,7 @@ fn main() {
 
 	#[cfg(feature = "img")]
 	{
-		let img = ImageReader::open("rust-logo.png")
+		let img = ImageReader::open("assets/rust-logo.png")
 			.unwrap()
 			.decode()
 			.unwrap()

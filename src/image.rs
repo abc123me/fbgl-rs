@@ -1,5 +1,7 @@
 extern crate image;
 
+pub mod sprite;
+
 use crate::colors::ReprColor;
 use crate::renderers::GraphicsRenderer;
 

@@ -14,6 +14,8 @@ pub mod colors;
 
 use crate::colors::ReprColor;
 
+/// Trait describing graphical operations that are typical
+/// of something implementing the graphics renderer trait
 pub trait GraphicsOperations: GraphicsRenderer {
 	/* For branch prediction reasons, all of these are assumed to
 	 * have appropriate input values, and if not you're fucked */
@@ -105,6 +107,7 @@ pub trait GraphicsOperations: GraphicsRenderer {
 	}
 }
 
+/// Trait describing a generic graphics renderer
 pub trait GraphicsRenderer {
 	type Color: ReprColor;
 
@@ -145,9 +148,14 @@ pub trait GraphicsRenderer {
 	}
 }
 
+/// Trait describing a generic buffered renderer
+pub trait BufferedRenderer {
+	fn push_buffer(&mut self);
+}
+
 // Buffered renderer
 
-pub struct BufferedRenderer<T: GraphicsRenderer> {
+pub struct HeapBuffer<T: GraphicsRenderer> {
 	base: T,
 	buffer_width: u32,
 	buffer_height: u32,
@@ -158,9 +166,9 @@ pub struct BufferedRenderer<T: GraphicsRenderer> {
 	buffer: Vec<T::Color>,
 }
 
-impl<T: GraphicsRenderer> BufferedRenderer<T> {
+impl<T: GraphicsRenderer> HeapBuffer<T> {
 	pub fn new(base_renderer: T) -> Self {
-		let mut out = BufferedRenderer::<T> {
+		let mut out = HeapBuffer::<T> {
 			base: base_renderer,
 			buffer_width: 0,
 			buffer_height: 0, /* these are set by resize_to_base */
@@ -187,14 +195,16 @@ impl<T: GraphicsRenderer> BufferedRenderer<T> {
 		}
 
 		println!(
-			"BufferedRenderer size set to {} x {} ({} pixels)",
+			"HeapBuffer size set to {} x {} ({} pixels)",
 			self.buffer_width,
 			self.buffer_height,
 			self.base.get_num_pixels()
 		);
 	}
+}
 
-	pub fn push_buffer(&mut self) {
+impl<T: GraphicsRenderer> BufferedRenderer for HeapBuffer<T> {
+	fn push_buffer(&mut self) {
 		self.base.set_pixels(
 			&self.buffer,
 			self.buffer_x_min,
@@ -208,7 +218,7 @@ impl<T: GraphicsRenderer> BufferedRenderer<T> {
 	}
 }
 
-impl<T: GraphicsRenderer> GraphicsRenderer for BufferedRenderer<T> {
+impl<T: GraphicsRenderer> GraphicsRenderer for HeapBuffer<T> {
 	type Color = T::Color;
 
 	fn get_pixel(&self, x: u32, y: u32) -> T::Color {
@@ -234,7 +244,7 @@ impl<T: GraphicsRenderer> GraphicsRenderer for BufferedRenderer<T> {
 	}
 }
 
-impl<T: GraphicsRenderer> GraphicsOperations for BufferedRenderer<T> {}
+impl<T: GraphicsRenderer> GraphicsOperations for HeapBuffer<T> {}
 
 // Multi display horizontal renderer
 

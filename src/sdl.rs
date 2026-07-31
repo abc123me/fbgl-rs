@@ -4,7 +4,7 @@ use anyhow::{anyhow, Error};
 
 use crate::colors::ReprColor;
 
-use sdl2::rect::Point;
+use sdl2::rect::{Point, Rect};
 use sdl2::render::WindowCanvas;
 use sdl2::{Sdl, VideoSubsystem};
 
@@ -20,8 +20,8 @@ impl ReprColor for SdlColor {
 }
 
 pub struct SdlRenderer {
-	_context: Sdl,
-	_video: VideoSubsystem,
+	pub context: Sdl,
+	pub video: VideoSubsystem,
 	pub canvas: WindowCanvas,
 }
 
@@ -35,13 +35,20 @@ impl SdlRenderer {
 		let window = video
 			.window("FBGL SDL renderer", width, height)
 			.position_centered()
+			.opengl()
 			.build()?;
 		let canvas = window.into_canvas().build()?;
 		Ok(Self {
-			_context: context,
-			_video: video,
+			context,
+			video,
 			canvas,
 		})
+	}
+}
+
+impl BufferedRenderer for SdlRenderer {
+	fn push_buffer(&mut self) {
+		self.canvas.present();
 	}
 }
 
@@ -57,7 +64,6 @@ impl GraphicsRenderer for SdlRenderer {
 
 	fn get_pixel(&self, _x: u32, _y: u32) -> SdlColor {
 		SdlColor::RGB(0, 0, 0)
-		/* TODO */
 	}
 	fn set_pixel(&mut self, col: SdlColor, x: u32, y: u32) {
 		assert!(x < i32::MAX as u32 && y < i32::MAX as u32);
@@ -65,5 +71,23 @@ impl GraphicsRenderer for SdlRenderer {
 		self.canvas
 			.draw_point(Point::new(x as i32, y as i32))
 			.expect("draw_point to work");
+	}
+}
+
+impl GraphicsOperations for SdlRenderer {
+	fn clear(&mut self, col: SdlColor) {
+		self.canvas.set_draw_color(col);
+		let _ = self.canvas.clear();
+	}
+	fn rect(&mut self, col: Self::Color, x: u32, y: u32, w: u32, h: u32) {
+		self.canvas.set_draw_color(col);
+		let _ = self.canvas.fill_rect(Rect::new(x as i32, y as i32, w, h));
+	}
+	fn line(&mut self, col: Self::Color, x1: u32, y1: u32, x2: u32, y2: u32) {
+		self.canvas.set_draw_color(col);
+		let _ = self.canvas.draw_line(
+			Point::new(x1 as i32, y1 as i32),
+			Point::new(x2 as i32, y2 as i32),
+		);
 	}
 }

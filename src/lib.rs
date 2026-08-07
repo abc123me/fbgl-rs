@@ -1,5 +1,5 @@
-//#[cfg(feature = "text")]
-//pub mod text;
+#[cfg(feature = "text")]
+pub mod text;
 
 #[cfg(feature = "img")]
 pub mod image;

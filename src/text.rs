@@ -115,11 +115,10 @@ impl<T: GraphicsRenderer> TextOperations for T {
 /// Fetches the font's line metrics for the given pixel size, falling
 /// back to sane defaults if the font doesn't provide any
 fn line_metrics(font: &Font, px: f32) -> LineMetrics {
-	font.horizontal_line_metrics(px)
-		.unwrap_or(LineMetrics {
-			ascent: px,
-			descent: 0.0,
-			line_gap: 0.0,
-			new_line_size: px,
-		})
+	font.horizontal_line_metrics(px).unwrap_or(LineMetrics {
+		ascent: px,
+		descent: 0.0,
+		line_gap: 0.0,
+		new_line_size: px,
+	})
 }

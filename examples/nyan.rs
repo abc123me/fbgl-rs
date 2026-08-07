@@ -3,24 +3,17 @@ extern crate image;
 use fbgl::colors::ReprColor;
 use fbgl::image::sprite::{AnimatedSprite, SpriteSheetFormat};
 use fbgl::renderers::sdl::{SdlColor, SdlRenderer};
-use fbgl::renderers::{BufferedRenderer, GraphicsOperations, GraphicsRenderer};
+use fbgl::renderers::{BufferedRenderer, GraphicsOperations};
 
 use image::ImageReader;
 
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
 fn main() {
 	let mut gl = SdlRenderer::new(500, 500).unwrap();
-
-	let w = gl.get_width();
-	let h = gl.get_height();
-	let s = h / 2;
-	let w2 = w / 2;
-	let h2 = h / 2;
-	let s2 = s / 2;
 
 	let img = ImageReader::open("assets/nyan-spritesheet.png")
 		.unwrap()

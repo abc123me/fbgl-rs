@@ -10,7 +10,7 @@ Rust seems like a perfectly good language to write a graphics library in.
 - Framebuffer support (via the [framebuffer crate](https://docs.rs/framebuffer/latest/))
 - Image support (via the [image crate](https://docs.rs/image/latest/))
 - Text support (via the [fontdue crate](https://docs.rs/fontdue/latest/))
-- SDL support (in progress)
+- SDL support
 - MultiDisplayHorizontalRenderer object
   - A special object optimized for rendering an image on multiple horizontally arranged displays
 - Generic BufferedRenderer object

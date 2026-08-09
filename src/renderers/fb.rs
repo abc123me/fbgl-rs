@@ -8,10 +8,11 @@ pub mod image;
 
 cfg_if::cfg_if! {
 	if #[cfg(feature = "ddmafb")] {
-		pub const DDMAFB_PUSH_BUFFER_MAGIC: u64 = 0xDF;
 		use crate::renderers::BufferedRenderer;
 		use std::os::fd::AsRawFd;
 		use libc;
+
+		pub const DDMAFB_PUSH_BUFFER_MAGIC: libc::c_ulong = 0xDF;
 	}
 }
 

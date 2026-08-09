@@ -3,6 +3,18 @@ use framebuffer::Framebuffer;
 use crate::colors::{Color565, ReprColor};
 use crate::renderers::{DiddyFbMemory, GraphicsOperations, GraphicsRenderer};
 
+#[cfg(feature = "img")]
+pub mod image;
+
+cfg_if::cfg_if! {
+	if #[cfg(feature = "ddmafb")] {
+		pub const DDMAFB_PUSH_BUFFER_MAGIC: u64 = 0xDF;
+		use crate::renderers::BufferedRenderer;
+		use std::os::fd::AsRawFd;
+		use libc;
+	}
+}
+
 pub trait FixedFramebufferColor: ReprColor + Sized {
 	/// Brief: Total bits
 	const BITS_T: u32;
@@ -35,7 +47,7 @@ impl<C: FixedFramebufferColor> DirectFramebufferRenderer<C> {
 
 		Ok(DirectFramebufferRenderer::<C> {
 			_non_generic: C::from_rgb(0, 0, 0),
-			fb: fb,
+		   fb: fb,
 		})
 	}
 }
@@ -64,8 +76,8 @@ impl<C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<C>
 		unsafe {
 			core::ptr::copy_nonoverlapping(
 				self.raw_diddy_framebuffer(x, y) as *const u8,
-				core::ptr::addr_of!(col) as *mut u8,
-				size_of::<C>(),
+										   core::ptr::addr_of!(col) as *mut u8,
+										   size_of::<C>(),
 			);
 		}
 		col
@@ -76,8 +88,8 @@ impl<C: FixedFramebufferColor> GraphicsRenderer for DirectFramebufferRenderer<C>
 		unsafe {
 			core::ptr::copy_nonoverlapping(
 				core::ptr::addr_of!(col) as *const u8,
-				self.raw_diddy_framebuffer(x, y) as *mut u8,
-				size_of::<C>(),
+										   self.raw_diddy_framebuffer(x, y) as *mut u8,
+										   size_of::<C>(),
 			);
 		}
 	}
@@ -94,9 +106,15 @@ impl GraphicsOperations for DirectFramebufferRenderer<Color565> {
 	}
 }
 
-// TODO - Optimize this to just memcpy the image directly onto the device
-#[cfg(feature = "img")]
-impl crate::image::ImageOperations for DirectFramebufferRenderer<Color565> {}
+#[cfg(feature = "ddmafb")]
+impl BufferedRenderer for DirectFramebufferRenderer<Color565> {
+	fn push_buffer(&mut self) {
+		unsafe {
+			libc::ioctl(self.fb.device.as_raw_fd(), DDMAFB_PUSH_BUFFER_MAGIC);
+		}
+	}
+}
+
 
 #[cfg(test)]
 mod tests {
